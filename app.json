@@ -9,7 +9,9 @@
     "splash": {
       "backgroundColor": "#0D9488"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.umkm.profitcalculator"
@@ -20,6 +22,9 @@
       },
       "package": "com.umkm.profitcalculator"
     },
-    "plugins": ["expo-sqlite"]
+    "plugins": [
+      "expo-sqlite",
+      "expo-asset"
+    ]
   }
 }

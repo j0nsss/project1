@@ -13,13 +13,13 @@ import { formatCurrency, formatNumber } from '../../../shared/utils/format';
 export function DashboardScreen() {
   const rawMaterials = useRawMaterialStore((s) => s.items);
   const fetchRawMaterials = useRawMaterialStore((s) => s.fetchAll);
+  const rmLoading = useRawMaterialStore((s) => s.isLoading);
   const products = useProductStore((s) => s.items);
   const fetchProducts = useProductStore((s) => s.fetchAll);
+  const prLoading = useProductStore((s) => s.isLoading);
   const calculations = useCalculationStore((s) => s.calculations);
   const fetchCalculations = useCalculationStore((s) => s.fetchCalculations);
-  const isLoading =
-    useRawMaterialStore((s) => s.isLoading) ||
-    useProductStore((s) => s.isLoading);
+  const isLoading = rmLoading || prLoading;
 
   useEffect(() => {
     fetchRawMaterials();
