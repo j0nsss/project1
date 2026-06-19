@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "UMKM Profit Calculator",
+    "slug": "umkm-profit-calculator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0D9488"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.umkm.profitcalculator"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0D9488"
+      },
+      "package": "com.umkm.profitcalculator"
+    },
+    "plugins": ["expo-sqlite"]
+  }
+}
