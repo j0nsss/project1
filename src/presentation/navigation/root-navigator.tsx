@@ -1,7 +1,14 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { View, StyleSheet } from 'react-native';
+
 import { RootStackParamList, MainTabParamList } from './types';
-import { colors } from '../../shared/constants/colors';
+import { colors, darkColors } from '../../../shared/constants/colors';
+import { useTheme } from '../../../shared/hooks/useTheme';
+import { spacing, fontSize, shadows } from '../../../shared/constants/spacing';
 
 import { DashboardScreen } from '../screens/dashboard/dashboard-screen';
 import { RawMaterialListScreen } from '../screens/raw-material/raw-material-list-screen';
@@ -17,49 +24,136 @@ import { HistoryScreen } from '../screens/history/history-screen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
+function TabIcon({
+  focused, iconName, label }: { focused: boolean; iconName: keyof typeof Ionicons.glyphMap; label: string }) {
+  const { colors, isDark } = useTheme();
+  const scale = useSharedValue(focused ? 1 : 0.9);
+  const opacity = useSharedValue(focused ? 1 : 0.6);
+
+  scale.value = withSpring(focused ? 1 : 0.9, { damping: 15, stiffness: 200 });
+  opacity.value = withSpring(focused ? 1 : 0.6);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.tabItem, animatedStyle]}>
+      {focused ? (
+        <LinearGradient
+          colors={colors.gradients.primary}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.iconContainer}
+        >
+          <Ionicons name={iconName} size={20} color="white" />
+        </LinearGradient>
+      ) : (
+        <View style={[styles.iconContainer, { backgroundColor: 'transparent' }]}>
+          <Ionicons name={iconName} size={24} color={isDark ? colors.gray[400] : colors.gray[500]} />
+        </View>
+      )}
+      {focused && (
+        <Text style={[styles.label, { color: colors.primary[500] }]} numberOfLines={1}>
+          {label}
+        </Text>
+      )}
+    </Animated.View>
+  );
+}
+
 function MainTabs() {
+  const { colors, isDark } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary[600],
-        tabBarInactiveTintColor: colors.gray[400],
         tabBarStyle: {
-          backgroundColor: colors.white,
-          borderTopColor: colors.gray[200],
+          backgroundColor: isDark ? colors.gray[800] : colors.white,
+          borderTopWidth: 0,
+          paddingTop: spacing.sm,
+          paddingBottom: spacing.lg,
+          paddingHorizontal: spacing.sm,
+          height: 72,
+          ...shadows.lg,
         },
+        tabBarShowLabel: false,
       }}
     >
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ tabBarLabel: 'Dashboard' }}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              iconName={focused ? 'home' : 'home-outline'}
+              label="Beranda"
+            />
+          ),
+        }}
       />
       <Tab.Screen
         name="RawMaterials"
         component={RawMaterialListScreen}
-        options={{ tabBarLabel: 'Bahan Baku' }}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              iconName={focused ? 'cube' : 'cube-outline'}
+              label="Bahan"
+            />
+          ),
+        }}
       />
       <Tab.Screen
         name="Products"
         component={ProductListScreen}
-        options={{ tabBarLabel: 'Produk' }}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              iconName={focused ? 'archive' : 'archive-outline'}
+              label="Produk"
+            />
+          ),
+        }}
       />
       <Tab.Screen
         name="History"
         component={HistoryScreen}
-        options={{ tabBarLabel: 'Riwayat' }}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              iconName={focused ? 'time' : 'time-outline'}
+              label="Riwayat"
+            />
+          ),
+        }}
       />
     </Tab.Navigator>
   );
 }
 
 export function RootNavigator() {
+  const { colors, isDark } = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTintColor: colors.primary[600],
+        headerTintColor: colors.primary[500],
+        headerStyle: {
+          backgroundColor: isDark ? colors.gray[800] : colors.white,
+        },
+        headerTitleStyle: {
+          fontWeight: '700',
+        },
+        headerShadowVisible: false,
+        animation: 'slide_from_right',
       }}
     >
       <Stack.Screen
@@ -70,33 +164,75 @@ export function RootNavigator() {
       <Stack.Screen
         name="RawMaterialForm"
         component={RawMaterialFormScreen}
-        options={{ title: 'Bahan Baku' }}
+        options={{
+          title: 'Bahan Baku',
+          headerLargeTitle: true,
+        }}
       />
       <Stack.Screen
         name="ProductForm"
         component={ProductFormScreen}
-        options={{ title: 'Produk' }}
+        options={{
+          title: 'Produk',
+          headerLargeTitle: true,
+        }}
       />
       <Stack.Screen
         name="RecipeForm"
         component={RecipeFormScreen}
-        options={{ title: 'Resep Produk' }}
+        options={{
+          title: 'Resep Produk',
+          headerLargeTitle: true,
+        }}
       />
       <Stack.Screen
         name="HppCalculator"
         component={HppCalculatorScreen}
-        options={{ title: 'Hitung HPP' }}
+        options={{
+          title: 'Hitung HPP',
+          headerLargeTitle: true,
+        }}
       />
       <Stack.Screen
         name="MarginSimulation"
         component={MarginSimulationScreen}
-        options={{ title: 'Simulasi Margin' }}
+        options={{
+          title: 'Simulasi Margin',
+          headerLargeTitle: true,
+        }}
       />
       <Stack.Screen
         name="ProfitAnalysis"
         component={ProfitAnalysisScreen}
-        options={{ title: 'Analisis Laba' }}
+        options={{
+          title: 'Analisis Laba',
+          headerLargeTitle: true,
+        }}
       />
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing[5],
+  },
+  label: {
+    fontSize: fontSize.xxs,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+});
+
+// Import Text di sini untuk menghindari import error
+import { Text } from 'react-native';

@@ -2,6 +2,7 @@ import { useEffect, useState, PropsWithChildren } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { env } from '../config/env';
 import { initializeDatabase } from '../infrastructure/database/database';
@@ -75,15 +76,17 @@ export function Providers({ children }: PropsWithChildren) {
   }
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          {children}
-          <ToastContainer />
-        </NavigationContainer>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ErrorBoundary>
+          <NavigationContainer>
+            <StatusBar style="dark" />
+            {children}
+            <ToastContainer />
+          </NavigationContainer>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

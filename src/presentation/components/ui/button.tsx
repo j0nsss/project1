@@ -6,11 +6,12 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors } from '../../../shared/constants/colors';
+import { useTheme } from '../../../shared/hooks/useTheme';
 import { borderRadius, spacing, fontSize } from '../../../shared/constants/spacing';
+import { Ionicons } from '@expo/vector-icons';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 interface ButtonProps {
   variant?: ButtonVariant;
@@ -20,19 +21,15 @@ interface ButtonProps {
   title: string;
   onPress: () => void;
   style?: ViewStyle;
+  icon?: keyof typeof Ionicons.glyphMap;
+  iconPosition?: 'left' | 'right';
 }
 
-const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
-  primary: { bg: colors.primary[600], text: colors.white },
-  secondary: { bg: colors.primary[100], text: colors.primary[700] },
-  outline: { bg: 'transparent', text: colors.primary[600], border: colors.primary[600] },
-  ghost: { bg: 'transparent', text: colors.gray[600] },
-};
-
-const sizeStyles: Record<ButtonSize, { px: number; py: number; fs: number }> = {
-  sm: { px: spacing.md, py: spacing.sm, fs: fontSize.sm },
-  md: { px: spacing.lg, py: spacing.md, fs: fontSize.md },
-  lg: { px: spacing.xl, py: spacing.md, fs: fontSize.lg },
+const sizeStyles: Record<ButtonSize, { px: number; py: number; fs: number; iconSize: number }> = {
+  sm: { px: spacing.md, py: spacing.sm, fs: fontSize.sm, iconSize: 16 },
+  md: { px: spacing.lg, py: spacing.md, fs: fontSize.md, iconSize: 18 },
+  lg: { px: spacing.xl, py: spacing.lg, fs: fontSize.lg, iconSize: 20 },
+  xl: { px: spacing['2xl'], py: spacing.xl, fs: fontSize.xl, iconSize: 24 },
 };
 
 export function Button({
@@ -43,10 +40,50 @@ export function Button({
   title,
   onPress,
   style,
+  icon,
+  iconPosition = 'left',
 }: ButtonProps) {
-  const vStyle = variantStyles[variant];
+  const { colors, isDark } = useTheme();
   const sStyle = sizeStyles[size];
   const isDisabled = disabled || loading;
+
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'primary':
+        return {
+          bg: colors.primary[500],
+          text: colors.white,
+        };
+      case 'secondary':
+        return {
+          bg: isDark ? colors.gray[700] : colors.gray[100],
+          text: isDark ? colors.gray[200] : colors.gray[800],
+        };
+      case 'outline':
+        return {
+          bg: 'transparent',
+          text: colors.primary[500],
+          border: colors.primary[500],
+        };
+      case 'ghost':
+        return {
+          bg: 'transparent',
+          text: isDark ? colors.gray[300] : colors.gray[600],
+        };
+      case 'danger':
+        return {
+          bg: colors.red[500],
+          text: colors.white,
+        };
+      default:
+        return {
+          bg: colors.primary[500],
+          text: colors.white,
+        };
+    }
+  };
+
+  const vStyle = getVariantStyles();
 
   return (
     <TouchableOpacity
@@ -59,8 +96,8 @@ export function Button({
           backgroundColor: vStyle.bg,
           paddingHorizontal: sStyle.px,
           paddingVertical: sStyle.py,
-          borderWidth: vStyle.border ? 1 : 0,
-          borderColor: vStyle.border,
+          borderWidth: vStyle.border ? 1.5 : 0,
+          borderColor: vStyle.border || 'transparent',
           opacity: isDisabled ? 0.5 : 1,
         },
         style,
@@ -69,20 +106,38 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           color={vStyle.text}
-          size={sStyle.fs === fontSize.sm ? 'small' : 'small'}
+          size={sStyle.fs <= fontSize.sm ? 'small' : 'small'}
         />
       ) : (
-        <Text
-          style={
-            {
-              color: vStyle.text,
-              fontSize: sStyle.fs,
-              fontWeight: '600',
-            } as TextStyle
-          }
-        >
-          {title}
-        </Text>
+        <>
+          {icon && iconPosition === 'left' && (
+            <Ionicons
+              name={icon}
+              size={sStyle.iconSize}
+              color={vStyle.text}
+              style={styles.iconLeft}
+            />
+          )}
+          <Text
+            style={
+              {
+                color: vStyle.text,
+                fontSize: sStyle.fs,
+                fontWeight: '700',
+              } as TextStyle
+            }
+          >
+            {title}
+          </Text>
+          {icon && iconPosition === 'right' && (
+            <Ionicons
+              name={icon}
+              size={sStyle.iconSize}
+              color={vStyle.text}
+              style={styles.iconRight}
+            />
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -90,9 +145,15 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.xl,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+  },
+  iconLeft: {
+    marginRight: spacing.sm,
+  },
+  iconRight: {
+    marginLeft: spacing.sm,
   },
 });
