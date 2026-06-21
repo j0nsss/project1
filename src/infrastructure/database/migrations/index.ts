@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { migration001 } from './001-initial-schema';
+import { migration002 } from './002-new-features-schema';
 
 interface Migration {
   version: number;
@@ -9,6 +10,7 @@ interface Migration {
 
 const migrations: Migration[] = [
   { version: 1, name: 'initial-schema', up: migration001 },
+  { version: 2, name: 'new-features-schema', up: migration002 },
 ];
 
 export async function runMigrations(
