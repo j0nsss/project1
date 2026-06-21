@@ -6,18 +6,16 @@ import {
   TouchableOpacity,
   RefreshControl,
   Alert,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FlashList } from '@shopify/flash-list';
-import { Swipeable } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useTheme } from '../../../../shared/hooks/useTheme';
-import { useRawMaterialStore } from '../../../../application/stores/raw-material.store';
-import { RawMaterial } from '../../../../domain/entities/raw-material.entity';
+import { useTheme } from '../../../shared/hooks/useTheme';
+import { useRawMaterialStore } from '../../../application/stores/raw-material.store';
+import { RawMaterial } from '../../../domain/entities/raw-material.entity';
 import { RootStackParamList } from '../../navigation/types';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -25,9 +23,9 @@ import { Loading } from '../../components/ui/loading';
 import { EmptyState } from '../../components/ui/empty-state';
 import { Badge } from '../../components/ui/badge';
 import { SearchBar } from '../../components/ui/search-bar';
-import { formatCurrency } from '../../../../shared/utils/format';
-import { UNIT_LABELS } from '../../../../shared/constants/units';
-import { spacing, fontSize, shadows } from '../../../../shared/constants/spacing';
+import { formatCurrency } from '../../../shared/utils/format';
+import { UNIT_LABELS } from '../../../shared/constants/units';
+import { spacing, fontSize, shadows } from '../../../shared/constants/spacing';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -72,65 +70,39 @@ export function RawMaterialListScreen() {
     );
   }, []);
 
-  const renderRightActions = (progress: any, dragX: any, item: RawMaterial) => {
-    const trans = dragX.interpolate({
-      inputRange: [-100, 0],
-      outputRange: [0, 100],
-      extrapolate: 'clamp',
-    });
-
-    const style = useAnimatedStyle(() => ({
-      transform: [{ translateX: withTiming(trans.value) }],
-    }));
-
-    return (
-      <Animated.View style={[styles.deleteActionContainer, style]}>
-        <TouchableOpacity
-          style={[styles.deleteButton, { backgroundColor: colors.red[500] }]}
-          onPress={() => handleDelete(item)}
-        >
-          <Ionicons name="trash" size={24} color="white" />
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
   const renderItem = ({ item }: { item: RawMaterial }) => (
-    <Swipeable
-      renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, item)}
-      overshootRight={false}
-    >
-      <Card variant="flat" padding="lg" style={styles.itemCard}>
-        <TouchableOpacity
-          style={styles.itemContent}
-          onPress={() => nav.navigate('RawMaterialForm', { id: item.id })}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.iconBackground, { backgroundColor: `${colors.primary[500]}15` }]}>
-            <Ionicons name="cube-outline" size={28} color={colors.primary[500]} />
+    <Card variant="flat" padding="lg" style={styles.itemCard}>
+      <TouchableOpacity
+        style={styles.itemContent}
+        onPress={() => nav.navigate('RawMaterialForm', { id: item.id })}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.iconBackground, { backgroundColor: `${colors.primary[500]}15` }]}>
+          <Ionicons name="cube-outline" size={28} color={colors.primary[500]} />
+        </View>
+        <View style={styles.itemText}>
+          <Text style={[styles.itemName, { color: isDark ? colors.white : colors.gray[900] }]}>
+            {item.name}
+          </Text>
+          <Text style={[styles.itemDetail, { color: isDark ? colors.gray[400] : colors.gray[500] }]}>
+            {UNIT_LABELS[item.unit] ?? item.unit} • {formatCurrency(item.pricePerUnit)}
+          </Text>
+          <View style={styles.itemMeta}>
+            <Badge
+              variant={item.stockQuantity > 0 ? 'success' : 'warning'}
+              label={`Stok: ${item.stockQuantity}`}
+            />
           </View>
-          <View style={styles.itemText}>
-            <Text style={[styles.itemName, { color: isDark ? colors.white : colors.gray[900] }]}>
-              {item.name}
-            </Text>
-            <Text style={[styles.itemDetail, { color: isDark ? colors.gray[400] : colors.gray[500] }]}>
-              {UNIT_LABELS[item.unit] ?? item.unit} • {formatCurrency(item.pricePerUnit)}
-            </Text>
-            <View style={styles.itemMeta}>
-              <Badge
-                variant={item.stockQuantity > 0 ? 'success' : 'warning'}
-                label={`Stok: ${item.stockQuantity}`}
-              />
-            </View>
-          </View>
+        </View>
+        <TouchableOpacity onPress={() => handleDelete(item)} style={styles.deleteIconButton}>
           <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={isDark ? colors.gray[500] : colors.gray[400]}
+            name="trash-outline"
+            size={22}
+            color={colors.red[500]}
           />
         </TouchableOpacity>
-      </Card>
-    </Swipeable>
+      </TouchableOpacity>
+    </Card>
   );
 
   if (isLoading && items.length === 0) {
@@ -165,12 +137,11 @@ export function RawMaterialListScreen() {
 
         {error && <Text style={[styles.error, { color: colors.red[500] }]}>{error}</Text>}
 
-        <FlashList
+        <FlatList
           data={filteredItems}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
-          estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -251,19 +222,11 @@ const styles = StyleSheet.create({
   itemMeta: {
     marginTop: spacing.sm,
   },
-  deleteActionContainer: {
-    width: 80,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  deleteButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+  deleteIconButton: {
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing.md,
-    ...shadows.md,
   },
   error: {
     fontSize: fontSize.md,

@@ -1,6 +1,7 @@
 import {
   TouchableOpacity,
   Text,
+  View,
   StyleSheet,
   ViewStyle,
   TextStyle,

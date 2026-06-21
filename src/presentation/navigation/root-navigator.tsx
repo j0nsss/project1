@@ -2,13 +2,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
 import { RootStackParamList, MainTabParamList } from './types';
-import { colors, darkColors } from '../../../shared/constants/colors';
-import { useTheme } from '../../../shared/hooks/useTheme';
-import { spacing, fontSize, shadows } from '../../../shared/constants/spacing';
+import { colors, darkColors } from '../../shared/constants/colors';
+import { useTheme } from '../../shared/hooks/useTheme';
+import { spacing, fontSize, shadows } from '../../shared/constants/spacing';
 
 import { DashboardScreen } from '../screens/dashboard/dashboard-screen';
 import { RawMaterialListScreen } from '../screens/raw-material/raw-material-list-screen';
@@ -25,21 +24,18 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function TabIcon({
-  focused, iconName, label }: { focused: boolean; iconName: keyof typeof Ionicons.glyphMap; label: string }) {
+  focused,
+  iconName,
+  label,
+}: {
+  focused: boolean;
+  iconName: keyof typeof Ionicons.glyphMap;
+  label: string;
+}) {
   const { colors, isDark } = useTheme();
-  const scale = useSharedValue(focused ? 1 : 0.9);
-  const opacity = useSharedValue(focused ? 1 : 0.6);
-
-  scale.value = withSpring(focused ? 1 : 0.9, { damping: 15, stiffness: 200 });
-  opacity.value = withSpring(focused ? 1 : 0.6);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
 
   return (
-    <Animated.View style={[styles.tabItem, animatedStyle]}>
+    <View style={[styles.tabItem, focused && styles.tabItemFocused]}>
       {focused ? (
         <LinearGradient
           colors={colors.gradients.primary}
@@ -59,7 +55,7 @@ function TabIcon({
           {label}
         </Text>
       )}
-    </Animated.View>
+    </View>
   );
 }
 
@@ -219,13 +215,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
+  tabItemFocused: {
+    transform: [{ scale: 1.05 }],
+  },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing[5],
+    marginBottom: spacing.xs,
   },
   label: {
     fontSize: fontSize.xxs,
@@ -233,6 +232,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 });
-
-// Import Text di sini untuk menghindari import error
-import { Text } from 'react-native';

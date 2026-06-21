@@ -10,8 +10,6 @@ export const spacing = {
   '4xl': 64,
 } as const;
 
-spacing['5'] = 4; // Alias for xs
-
 export const borderRadius = {
   none: 0,
   xs: 4,

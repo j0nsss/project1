@@ -14,10 +14,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useTheme } from '../../../../shared/hooks/useTheme';
-import { useRawMaterialStore } from '../../../../application/stores/raw-material.store';
-import { useProductStore } from '../../../../application/stores/product.store';
-import { useCalculationStore } from '../../../../application/stores/calculation.store';
+import { useTheme } from '../../../shared/hooks/useTheme';
+import { useRawMaterialStore } from '../../../application/stores/raw-material.store';
+import { useProductStore } from '../../../application/stores/product.store';
+import { useCalculationStore } from '../../../application/stores/calculation.store';
 
 import { StatCard } from '../../components/shared/stat-card';
 import { QuickAction } from '../../components/shared/quick-action';
@@ -25,9 +25,10 @@ import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Avatar } from '../../components/ui/avatar';
+import { Badge } from '../../components/ui/badge';
 import { RootStackParamList } from '../../navigation/types';
-import { spacing, fontSize, shadows } from '../../../../shared/constants/spacing';
-import { formatCurrency, formatNumber } from '../../../../shared/utils/format';
+import { spacing, fontSize, shadows } from '../../../shared/constants/spacing';
+import { formatCurrency, formatNumber } from '../../../shared/utils/format';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const screenWidth = Dimensions.get('window').width;
@@ -410,6 +411,3 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
   },
 });
-
-// Import Badge di sini untuk menghindari circular dependency
-import { Badge } from '../../components/ui/badge';
