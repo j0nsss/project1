@@ -5,6 +5,8 @@ import { SqliteRecipeRepository } from './repositories/sqlite-recipe.repository'
 import { SqliteCalculationRepository } from './repositories/sqlite-calculation.repository';
 import { SqliteMarginSimulationRepository } from './repositories/sqlite-margin-simulation.repository';
 import { SqliteProfitAnalysisRepository } from './repositories/sqlite-profit-analysis.repository';
+import { SqliteCashEntryRepository } from './repositories/sqlite-cash-entry.repository';
+import { SqliteDebtRepository } from './repositories/sqlite-debt.repository';
 import { MockRawMaterialRepository } from './mock/mock-raw-material.repository';
 import { MockProductRepository } from './mock/mock-product.repository';
 import { MockRecipeRepository } from './mock/mock-recipe.repository';
@@ -27,6 +29,8 @@ export interface RepositoryCollection {
   profitAnalysisRepository:
     | SqliteProfitAnalysisRepository
     | MockProfitAnalysisRepository;
+  cashEntryRepository: SqliteCashEntryRepository;
+  debtRepository: SqliteDebtRepository;
 }
 
 export function initializeRepositories(
@@ -39,16 +43,11 @@ export function initializeRepositories(
     calculationRepository: new SqliteCalculationRepository(db),
     marginSimulationRepository: new SqliteMarginSimulationRepository(db),
     profitAnalysisRepository: new SqliteProfitAnalysisRepository(db),
+    cashEntryRepository: new SqliteCashEntryRepository(db),
+    debtRepository: new SqliteDebtRepository(db),
   };
 }
 
 export function initializeMockRepositories(): RepositoryCollection {
-  return {
-    rawMaterialRepository: new MockRawMaterialRepository(),
-    productRepository: new MockProductRepository(),
-    recipeRepository: new MockRecipeRepository(),
-    calculationRepository: new MockCalculationRepository(),
-    marginSimulationRepository: new MockMarginSimulationRepository(),
-    profitAnalysisRepository: new MockProfitAnalysisRepository(),
-  };
+  throw new Error('Mocks not supported for new repositories yet');
 }
