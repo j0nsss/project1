@@ -14,5 +14,9 @@ export type MainTabParamList = {
   Dashboard: undefined;
   RawMaterials: undefined;
   Products: undefined;
+  CashBook: undefined;
+  Cashier: undefined;
+  Debts: undefined;
+  MarketplaceFees: undefined;
   History: undefined;
 };

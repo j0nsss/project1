@@ -8,6 +8,7 @@ import { RootStackParamList, MainTabParamList } from './types';
 import { colors, darkColors } from '../../shared/constants/colors';
 import { useTheme } from '../../shared/hooks/useTheme';
 import { spacing, fontSize, shadows } from '../../shared/constants/spacing';
+import { useAuthStore } from '../../application/stores/auth.store';
 
 import { DashboardScreen } from '../screens/dashboard/dashboard-screen';
 import { RawMaterialListScreen } from '../screens/raw-material/raw-material-list-screen';
@@ -19,6 +20,10 @@ import { HppCalculatorScreen } from '../screens/hpp/hpp-calculator-screen';
 import { MarginSimulationScreen } from '../screens/margin/margin-simulation-screen';
 import { ProfitAnalysisScreen } from '../screens/profit/profit-analysis-screen';
 import { HistoryScreen } from '../screens/history/history-screen';
+import { CashBookScreen } from '../screens/cash-book/cash-book-screen';
+import { CashierScreen } from '../screens/cashier/cashier-screen';
+import { DebtsScreen } from '../screens/debts/debts-screen';
+import { MarketplaceFeesScreen } from '../screens/marketplace-fees/marketplace-fees-screen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -61,6 +66,7 @@ function TabIcon({
 
 function MainTabs() {
   const { colors, isDark } = useTheme();
+  const role = useAuthStore((s) => s.role);
 
   return (
     <Tab.Navigator
@@ -91,28 +97,84 @@ function MainTabs() {
           ),
         }}
       />
+      {role === 'OWNER' && (
+        <>
+          <Tab.Screen
+            name="RawMaterials"
+            component={RawMaterialListScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <TabIcon
+                  focused={focused}
+                  iconName={focused ? 'cube' : 'cube-outline'}
+                  label="Bahan"
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Products"
+            component={ProductListScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <TabIcon
+                  focused={focused}
+                  iconName={focused ? 'archive' : 'archive-outline'}
+                  label="Produk"
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="MarketplaceFees"
+            component={MarketplaceFeesScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <TabIcon
+                  focused={focused}
+                  iconName={focused ? 'cart' : 'cart-outline'}
+                  label="Marketplace"
+                />
+              ),
+            }}
+          />
+        </>
+      )}
       <Tab.Screen
-        name="RawMaterials"
-        component={RawMaterialListScreen}
+        name="Cashier"
+        component={CashierScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              iconName={focused ? 'cube' : 'cube-outline'}
-              label="Bahan"
+              iconName={focused ? 'cash' : 'cash-outline'}
+              label="Kasir"
             />
           ),
         }}
       />
       <Tab.Screen
-        name="Products"
-        component={ProductListScreen}
+        name="CashBook"
+        component={CashBookScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              iconName={focused ? 'archive' : 'archive-outline'}
-              label="Produk"
+              iconName={focused ? 'journal' : 'journal-outline'}
+              label="Buku Kas"
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Debts"
+        component={DebtsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              iconName={focused ? 'document-text' : 'document-text-outline'}
+              label="Bon"
             />
           ),
         }}
