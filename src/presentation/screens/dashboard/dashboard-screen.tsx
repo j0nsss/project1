@@ -18,6 +18,7 @@ import { useTheme } from '../../../shared/hooks/useTheme';
 import { useRawMaterialStore } from '../../../application/stores/raw-material.store';
 import { useProductStore } from '../../../application/stores/product.store';
 import { useCalculationStore } from '../../../application/stores/calculation.store';
+import { useAuthStore } from '../../../application/stores/auth.store';
 
 import { StatCard } from '../../components/shared/stat-card';
 import { QuickAction } from '../../components/shared/quick-action';
@@ -38,6 +39,8 @@ export function DashboardScreen() {
   const { colors, isDark, toggleMode } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const { role, login, cloudBackupStatus, lastBackupTime, triggerBackup } = useAuthStore();
 
   const rawMaterials = useRawMaterialStore((s) => s.items);
   const fetchRawMaterials = useRawMaterialStore((s) => s.fetchAll);
@@ -147,6 +150,7 @@ export function DashboardScreen() {
               size="md"
               icon={isDark ? 'sunny' : 'moon'}
               onPress={toggleMode}
+              title=""
             />
           </View>
         </LinearGradient>
@@ -212,41 +216,126 @@ export function DashboardScreen() {
           />
         </Card>
 
+        {/* Cloud Backup & Multi-User Panel */}
+        <Card padding="lg" style={{ marginBottom: spacing.md }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text style={{ fontSize: fontSize.sm, color: isDark ? colors.gray[400] : colors.gray[500] }}>Multi-User Mode</Text>
+              <Text style={{ fontSize: fontSize.md, fontWeight: '700', color: isDark ? colors.white : colors.gray[900] }}>
+                Peran Aktif: {role === 'OWNER' ? 'Owner / Pemilik' : 'Karyawan / Kasir'}
+              </Text>
+            </View>
+            <Button
+              title={role === 'OWNER' ? 'Ke Karyawan' : 'Ke Owner'}
+              variant="outline"
+              size="sm"
+              onPress={() => login(role === 'OWNER' ? 'KARYAWAN' : 'OWNER')}
+            />
+          </View>
+          <View style={styles.divider} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text style={{ fontSize: fontSize.xs, color: isDark ? colors.gray[400] : colors.gray[500] }}>Cloud Backup Status</Text>
+              <Text style={{ fontSize: fontSize.sm, fontWeight: '600', color: colors.primary[500] }}>
+                {cloudBackupStatus === 'SYNCING'
+                  ? 'Menyinkronkan data...'
+                  : cloudBackupStatus === 'SUCCESS'
+                  ? 'Sinkronisasi berhasil!'
+                  : `Terakhir dicadangkan: ${lastBackupTime || 'Belum'}`}
+              </Text>
+            </View>
+            <Button
+              title="Backup Sekarang"
+              variant="ghost"
+              size="sm"
+              icon="cloud-upload-outline"
+              onPress={triggerBackup}
+              disabled={cloudBackupStatus === 'SYNCING'}
+            />
+          </View>
+        </Card>
+
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: isDark ? colors.white : colors.gray[900] }]}>
               Aksi Cepat
             </Text>
           </View>
-          <View style={styles.quickActionsRow}>
-            <QuickAction
-              title="Tambah Bahan"
-              icon="add-circle"
-              onPress={() => nav.navigate('RawMaterialForm', {})}
-              color={colors.primary[500]}
-            />
-            <View style={styles.spacer} />
-            <QuickAction
-              title="Tambah Produk"
-              icon="add-circle-outline"
-              onPress={() => nav.navigate('ProductForm', {})}
-              color={colors.secondary[500]}
-            />
-            <View style={styles.spacer} />
-            <QuickAction
-              title="Hitung HPP"
-              icon="calculator"
-              onPress={() => nav.navigate('HppCalculator')}
-              color={colors.accent[500]}
-            />
-            <View style={styles.spacer} />
-            <QuickAction
-              title="Simulasi"
-              icon="analytics-outline"
-              onPress={() => nav.navigate('MarginSimulation')}
-              color={colors.green[500]}
-            />
-          </View>
+          {role === 'OWNER' ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRowScroll}>
+              <QuickAction
+                title="Tambah Bahan"
+                icon="add-circle"
+                onPress={() => (nav as any).navigate('RawMaterialForm', {})}
+                color={colors.primary[500]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Tambah Produk"
+                icon="add-circle-outline"
+                onPress={() => (nav as any).navigate('ProductForm', {})}
+                color={colors.secondary[500]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Hitung HPP"
+                icon="calculator"
+                onPress={() => (nav as any).navigate('HppCalculator')}
+                color={colors.accent[500]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Simulasi"
+                icon="analytics-outline"
+                onPress={() => (nav as any).navigate('MarginSimulation')}
+                color={colors.green[500]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Mesin Kasir"
+                icon="cash-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'Cashier' })}
+                color={colors.yellow[600]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Buku Kas"
+                icon="journal-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'CashBook' })}
+                color={colors.primary[600]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Marketplace"
+                icon="cart-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'MarketplaceFees' })}
+                color={colors.secondary[600]}
+              />
+            </ScrollView>
+          ) : (
+            <View style={styles.quickActionsRow}>
+              <QuickAction
+                title="Mesin Kasir"
+                icon="cash-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'Cashier' })}
+                color={colors.yellow[600]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Buku Kas"
+                icon="journal-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'CashBook' })}
+                color={colors.primary[600]}
+              />
+              <View style={styles.spacer} />
+              <QuickAction
+                title="Catatan Bon"
+                icon="document-text-outline"
+                onPress={() => (nav as any).navigate('MainTabs', { screen: 'Debts' })}
+                color={colors.green[500]}
+              />
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -258,7 +347,7 @@ export function DashboardScreen() {
               variant="ghost"
               size="sm"
               title="Lihat Semua"
-              onPress={() => nav.navigate('MainTabs', { screen: 'Products' })}
+              onPress={() => (nav as any).navigate('MainTabs', { screen: 'Products' })}
             />
           </View>
           {products.slice(0, 3).map((product, index) => (
@@ -272,7 +361,7 @@ export function DashboardScreen() {
                     {product.name}
                   </Text>
                   <Text style={[styles.productPrice, { color: isDark ? colors.gray[400] : colors.gray[500] }]}>
-                    {formatCurrency(product.sellingPrice)}
+                    {formatCurrency(product.sellingPrice || 0)}
                   </Text>
                 </View>
                 <Badge
@@ -409,5 +498,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: fontSize.md,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: spacing.md,
+  },
+  quickActionsRowScroll: {
+    flexDirection: 'row',
+    paddingVertical: spacing.xs,
   },
 });
