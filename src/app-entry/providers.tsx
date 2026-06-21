@@ -15,6 +15,8 @@ import { useRawMaterialStore } from '../application/stores/raw-material.store';
 import { useProductStore } from '../application/stores/product.store';
 import { useCalculationStore } from '../application/stores/calculation.store';
 import { useRecipeStore } from '../application/stores/recipe.store';
+import { useCashBookStore } from '../application/stores/cash-book.store';
+import { useDebtStore } from '../application/stores/debt.store';
 import { useUIStore } from '../application/stores/ui.store';
 import { RootNavigator } from '../presentation/navigation/root-navigator';
 import { ToastContainer } from '../presentation/components/ui/toast';
@@ -25,6 +27,8 @@ function wireRepositories(repos: RepositoryCollection) {
   useRawMaterialStore.getState().setRepository(repos.rawMaterialRepository);
   useProductStore.getState().setRepository(repos.productRepository);
   useRecipeStore.getState().setRepository(repos.recipeRepository);
+  useCashBookStore.getState().setRepository(repos.cashEntryRepository);
+  useDebtStore.getState().setRepository(repos.debtRepository);
   useCalculationStore.getState().setRepositories({
     calculation: repos.calculationRepository,
     margin: repos.marginSimulationRepository,
